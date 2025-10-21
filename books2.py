@@ -1,5 +1,5 @@
 from typing import Optional
-from fastapi import FastAPI,HTTPException,Request
+from fastapi import FastAPI,HTTPException,Request,status,Form
 from pydantic import BaseModel,Field
 from uuid import UUID
 from starlette.responses import JSONResponse
@@ -42,6 +42,15 @@ class Book(BaseModel):
 
     
 
+class BookNoRating(BaseModel):
+    id: UUID
+    title:str=Field(min_length=1)
+    author:str
+    description:Optional[str]=Field(
+        None,title="description of the book",
+        max_length=100,
+        min_length=1
+    )
 
 
 
@@ -57,6 +66,15 @@ async def negative_number_exception_handler(request:Request,
         content={"message":f"Hey,why do you want {exception.books_to_return}" 
                  f"books?You need to read more!"}
     )
+
+
+
+@app.post("/books/login")
+async def books_login(username:str=Form(...),password:str=Form(...)):
+    return{"username":username,"password":password}
+
+
+
 
 @app.get("/")
 async def read_all_books(books_to_return:Optional[int]=None):
@@ -86,7 +104,17 @@ async def read_book(book_id:UUID):
             return x
     raise raise_item_cannot_be_found_exception()
 
-@app.post("/")
+
+
+@app.get("/book/rating/{book_id}", response_model=BookNoRating)
+async def read_book_no_rating(book_id:UUID):
+    for x in BOOKS:
+        if x.id==book_id:
+            return x
+    raise raise_item_cannot_be_found_exception()
+
+
+@app.post("/",status_code=status.HTTP_201_CREATED)
 async def create_book(book:Book):
     BOOKS.append(book)
     return book
