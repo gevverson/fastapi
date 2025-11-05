@@ -1,4 +1,6 @@
 # In auth.py
+import sys
+sys.path.append("..")
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel
@@ -13,7 +15,13 @@ from jose import jwt, JWTError
 
 # --- Setup the Router ---
 # We use APIRouter here, NOT FastAPI
-router = APIRouter()
+router = APIRouter(
+    prefix="/auth",
+    tags=["Auth"],
+    responses={401: {"user":"Not authorized"}}
+                   )
+
+
 
 
 SECRET_KEY = "TK3Tb0OATLwGCrh9cdWlv8Nd8JKqwmtKHEq7xuu7jdw"
@@ -108,7 +116,6 @@ async def create_new_user(create_user: CreateUser, db: Session = Depends(get_db)
     db.commit()
     return {"message": "User created successfully"}
 
-
 @router.post('/token')
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(),
                                  db: Session = Depends(get_db)):
@@ -119,9 +126,9 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
     token = create_access_token(user.username,
                               user.id,
                               expires_delta=token_expires)
-    return {"token": token}  # <-- This should be "access_token" to match tutorial
-    # return {"access_token": token, "token_type": "bearer"} # <-- Better practice
 
+    # THIS IS THE FIX:
+    return {"access_token": token, "token_type": "bearer"}
 
 # --- Exceptions ---
 
