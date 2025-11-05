@@ -191,7 +191,7 @@ def create_books_no_api():
 
 
 def raise_item_cannot_be_found_exception():
-    return HTTPException(status_code=404,
+    raise HTTPException(status_code=404,
                          detail="Book not found",
                          headers={"X-Header-Error":
                                   "Nothing to be seen at the UUID"})

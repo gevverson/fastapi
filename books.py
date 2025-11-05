@@ -1,4 +1,3 @@
- 
 from typing import Optional
 from fastapi import FastAPI, HTTPException
 from enum import Enum
@@ -125,7 +124,7 @@ async def read_book_by_key(book_name: str):
 
 #####POST
 @app.post("/")
-async def create_book(book_title,book_author):
+async def create_book(book_title: str, book_author: str):
     current_book_id=0
 
     if len(BOOKS)>0:
@@ -141,7 +140,7 @@ async def create_book(book_title,book_author):
 ###PUT
 
 @app.put("/{book_name}")
-async def update_book(book_name:str,book_title:str,book_author:str):
+async def update_book(book_name: str, book_title: str, book_author: str):
     book_information={'title':book_title,'author':book_author}
     BOOKS[book_name]=book_information
     return book_information
@@ -149,7 +148,7 @@ async def update_book(book_name:str,book_title:str,book_author:str):
 
 ####DELETE
 @app.delete("/{book_name}")
-async def delete_book(book_name):
+async def delete_book(book_name: str):
     del BOOKS[book_name]
     return f'Book_{book_name} deleted'
 
