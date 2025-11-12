@@ -4,7 +4,7 @@ from database import engine
 
 # --- CORRECTED IMPORTS ---
 # Import all our routers
-from routers import auth, todos
+from routers import auth, todos,address
 from company import companyapis,dependencies
 
 app = FastAPI()
@@ -13,6 +13,7 @@ app = FastAPI()
 # Include all three routers. FastAPI will get the tags from each.
 app.include_router(auth.router)
 app.include_router(todos.router)
+app.include_router(address.router)
 app.include_router(companyapis.router)
 
 models.Base.metadata.create_all(bind=engine)

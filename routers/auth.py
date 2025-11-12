@@ -35,13 +35,13 @@ class CreateUser(BaseModel):
     first_name: str
     last_name: str
     password: str
-
+    phone_number:str
 # --- Setup ---
 
 bcrypt_context = CryptContext(schemes=["argon2"], deprecated="auto")
 # No need to run models.Base.metadata.create_all() here, main.py does it.
 
-oauth2_bearer = OAuth2PasswordBearer(tokenUrl="token")
+oauth2_bearer = OAuth2PasswordBearer(tokenUrl="/auth/token")
 
 
 # --- Database Dependency ---
@@ -111,6 +111,10 @@ async def create_new_user(create_user: CreateUser, db: Session = Depends(get_db)
     hash_password = get_password_hash(create_user.password)
     create_user_model.hashed_password = hash_password
     create_user_model.is_active = True
+
+     # --- CHANGE ---
+    # Save the new phone_number to the model
+    create_user_model.phone_number = create_user.phone_number
 
     db.add(create_user_model)
     db.commit()
