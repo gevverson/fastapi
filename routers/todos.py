@@ -1,14 +1,19 @@
 import sys
+
+from h11 import Request
 sys.path.append("..")
 
 import http
 from typing import Optional
-from fastapi import Depends, HTTPException,APIRouter
+from fastapi import Depends, HTTPException,APIRouter,Request
 import models
 from database import SessionLocal, engine
 from sqlalchemy.orm import Session
 from pydantic import BaseModel, Field
 from .auth import get_current_user,get_user_exception
+
+from fastapi.responses import HTMLResponse
+from fastapi.templating import Jinja2Templates
 
 # --- THIS IS THE FIX ---
 # We add the "tags" parameter here to create the category in Swagger
@@ -17,6 +22,8 @@ router = APIRouter(
 )
 
 models.Base.metadata.create_all(bind=engine)
+
+templates=Jinja2Templates(directory="templates")
 
 def get_db():
     try:
@@ -30,6 +37,15 @@ class Todo(BaseModel):
     description: Optional[str]
     priority: int = Field(gt=0, lt=6, description="The priority must be between 1-5")
     complete: bool
+
+
+@router.get("/test")
+async def test(request:Request):
+    return templates.TemplateResponse("add-todo.html",{"request":request})
+
+
+
+
 
 # ### All your todo endpoints are perfect ###
 @router.get("/todos")
@@ -106,6 +122,7 @@ async def update_todo(todo_id: int,
     todo_model.complete = todo.complete
 
     db.add(todo_model)
+    
     db.commit()
 
     return successful_response(200)
